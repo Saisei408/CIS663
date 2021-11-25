@@ -1,0 +1,155 @@
+---
+title: "Does free student meals mean an increase in Ala Cart sales?"
+subtitle: "Developing Analytics Application in R"
+author: "Pleas Jeff Dean"
+date: "11/24/2021"
+output: 
+  word_document:
+  reference_docx: template.docx
+---
+
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(knitr)
+library(formattable)
+library(ggplot2)
+library(tidyr)
+library(Hmisc)
+```
+
+
+**Problem and its Significance **
+
+With meals being free, have students taken the funds that would have normally been used for those meals and are now using them to buy Ala Cart items? With the increase in reimbursement as well as students spending money otherwise used for meals, the school district is attempting to be more profitable now than when the pandemic started. With the possibility of meals becoming permanently free districts are looking to capitalize on this emerging trend. 
+
+<br>
+
+**Literature Review **
+
+The loss of revenue from the reimbursement the schools received from the USDA has generated Food Service Directors looking to new places to try and compensate from the loss of meals served. It has been estimated that between March and November of 2020 schools nationwide served 1.7 billion fewer meals compared to the same timeframe in 2019, equating to a 2.1 billion loss in federal funding for the school meal programs (Pratt-Heavner, 2021).
+
+<br>
+
+With the loss of revenue from the meal program itself many schools begin to look elsewhere for the funding. “We must help schools offset these meal program losses, which will impact education budgets at the local level, cutting in to necessary funds for teachers, textbooks and technology,” (Pratt-Heavner, 2021). Many schools from my professional experience have had to downsize their staff due to not having the funding to pay their wages. As well as deal with the Covid guidelines and scheduling for meal sessions for the students. Federal regulations state that “schools must offer lunches between 10:00 am and 2:00 pm. Schools may request an exemption from these times from the state agency.” SNA’s State of School Nutrition 2018 survey, which included responses from 1,550 SNA member school districts nationwide, revealed that the typical lunch period length is about half an hour, with a median of 25 minutes reported for elementary schools and 30 minutes for middle and high schools. (SNA, 2021)
+
+<br>
+
+**Research Question(s)  **
+
+•	Has the school district seen an increase in Ala Cart spending compared to a pre-covid year?
+
+<br>
+
+**Theory **
+
+H0: (X) Money spent on extra meal items has increased by (Z) percentage due to school meals now being 0
+H1: Money spent on extra meal items has decreased or stayed the same
+
+
+<br>
+
+**Data **
+
+The data that I will be using will come from a current school district that I will call School District so as to keep their information confidential. This information will come from my current line of work as technical support representative, this will be a sample of actual sales information between a designated time period of July 01 – November 01 of the school year 18/19 and 21/22. I will not use data from 19/20 school year as most school districts had 0 in person attendance during this time and the variables for the different meal services would go well beyond the scope of the project. 
+
+<br>-
+
+#### School Year 18-19####
+
+```{r, echo=FALSE}
+x <- read.csv("alacarte 18-19.csv")
+```
+
+```{r, echo=TRUE}
+x
+```
+
+<br>
+
+#### School Year 21-22####
+
+```{r, echo=FALSE}
+y <- read.csv("alacarte 21-22.csv")
+```
+
+```{r, echo=TRUE}
+y
+```
+
+<br>
+
+**Methodology **
+
+Once the sales data is imported into R I will perform the necessary clean-up of the data. Namely combing the different item sales information into a summary for the given time period. This will be done so that I have the sales data to better be able perform my testing on.
+
+<br>
+
+I will then perform a t-test analysis to see how the changing of meal pricing has impacted the overall sales within the district.
+
+<br>
+
+**Analysis**
+```{r, echo=FALSE}
+df <- data.frame(x)
+df1 <- data.frame(y)
+func <- function(z) if (is.numeric(z)) sum(z) else '' 
+sumrow <- as.data.frame(lapply(df, func))
+sumrow2 <- as.data.frame(lapply(df1, func))
+X <- select(sumrow, Total)
+Y <- select(sumrow2, Total)
+mydf <- data.frame(X, Y)
+df2 <- rbind(X, Y)
+second <- c("18/19", "21/22")
+mydf2 <- data.frame(a = df2, b = second)
+```
+
+#### T-Test ####
+```{r, echo=TRUE}
+t.test(mydf, mu = 0)
+```
+
+<br>
+
+#### Bargraph ####
+```{r, echo=TRUE}
+ggplot(mydf2, aes(x = b, y = df2$Total)) +
+  stat_summary(fun = mean, geom = "bar") +
+  stat_summary(fun.data = mean_cl_boot, geom = "pointrange") +
+  labs(y = "Total in Dollars", x = "Academic Years") +
+  labs(title = "Total Sales")
+
+```
+
+<br>
+
+**Results**
+
+The bargraph shows that the total sales have increased over the previous "Pre-Covid" sales. Looking at the sales figures in the graph, the sales of Ala Cart items has almost doubled since the pandemic.
+
+<br>
+
+**Implication**
+
+These results would substantiate that this districts food service departments is actually being more profitable than before Covid began. These finding show that though many districts are struggling in these times, this district in paticular is thriving from a financial sense.
+
+<br>
+
+**Conclusion**
+
+In conclusion based on the confidence level of the t-test, the p-value being greater than .05 we cannot reject the hypothesis. This shows that this particular school district though they no longer have meals that they charge for, they have increased sales of Ala Cart or "extra" items. Though this may not be correct for every district, these results show that there is a larger transference of cash in the school K-12 food service industry than before.
+
+\newpage
+**References **
+
+USDA (2021) USDA Issues Pandemic Flexibilities for Schools and Day Care Facilities through June 2022 to Support Safe Reopening and Healthy, Nutritious Meals, Press Release No. 0075.21
+https://www.usda.gov/media/press-releases/2021/04/20/usda-issues-pandemic-flexibilities-schools-and-day-care-facilities
+
+Pratt-Heavner (2021) New USDA Data: Fewer Meals Served, $2B Loss for School Meal Programs
+https://schoolnutrition.org/news-publications/press-releases/2021/new-usda-data-fewer-meals-served-2b-loss-for-school-meal-programs/
+
+SNA (2021) School Meal Trends & Stats 
+https://schoolnutrition.org/aboutschoolmeals/schoolmealtrendsstats/
+
